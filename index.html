@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Save 10000 Dollars Challenge</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #4aa2f1;
+            font-family: 'Arial', sans-serif;
+        }
+        .container {
+            margin-top: 30px;
+        }
+        h1{
+            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
+            animation: fadeIn 2s;
+        }
+         h4{
+            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
+            animation: fadeIn 2s;
+        }
+          h3{
+            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
+            animation: fadeIn 2s;
+        }
+        .slot {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px;
+            border: 1px solid #ccc;
+            margin-bottom: 10px;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            animation: slideIn 0.5s;
+        }
+        .cross-btn {
+            background-color: #dc3545;
+            color: #fff;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .cross-btn:hover {
+            background-color: #c82333;
+        }
+        .btn-regenerate, .btn-save {
+            display: block;
+            margin: 20px auto;
+            background-color: #ea9b0b;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            animation: bounce 1s infinite;
+        }
+        .btn-save {
+            background-color: #235a0d;
+        }
+        .btn-regenerate:hover, .btn-save:hover {
+            background-color: #218838;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideIn {
+            from { transform: translateX(-100%); }
+            to { transform: translateX(0); }
+        }
+        .popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            z-index: 1000;
+        }
+        .popup.show {
+            display: block;
+            animation: fadeIn 1s ease;
+        }
+        .popup h2 {
+            margin-bottom: 20px;
+            color: #28a745;
+        }
+        .party-pop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://cdn.pixabay.com/photo/2017/08/30/03/45/confetti-2695661_960_720.png') no-repeat center center/cover;
+            display: none;
+            z-index: 999;
+        }
+        .party-pop.show {
+            display: block;
+            animation: fadeIn 2s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Save 10000 Dollars Challenge</h1>
+        <h4>Take a binder with 400 slots, put money in each slot, or take a piggy bank and save money.</h4>
+        <h3>Each time you cross a slot click on Save button to save the progress</h3>
+        <button class="btn btn-regenerate" onclick="regenerateSlots()">Regenerate slots</button>
+        <button class="btn btn-save" onclick="saveData()">Save</button>
+        <div id="slot-container">
+            <!-- Slots will be dynamically generated here -->
+        </div>
+    </div>
+
+    <div class="popup" id="congratsPopup">
+        <h2>Congrats! You've saved $10,000!</h2>
+        <p>Well done on reaching your savings goal.</p>
+        <button class="btn btn-primary" onclick="closePopup()">Close</button>
+    </div>
+
+    <div class="party-pop" id="partyPop"></div>
+
+    <script>
+        let currentSaveName = '';
+
+        function getRandomAmount() {
+            const amounts = [5, 10, 20, 50, 100];
+            return amounts[Math.floor(Math.random() * amounts.length)];
+        }
+
+        function generateSlots() {
+            const container = document.getElementById('slot-container');
+            container.innerHTML = '';
+
+            for (let i = 1; i <= 400; i++) {
+                const slot = document.createElement('div');
+                slot.className = 'slot';
+                slot.innerHTML = `
+                    <span>Slot ${i}: $${getRandomAmount()}</span>
+                    <button class="cross-btn" onclick="crossSlot(this)">X</button>
+                `;
+                container.appendChild(slot);
+            }
+        }
+
+        function crossSlot(button) {
+            const slot = button.parentElement;
+            slot.style.display = 'none';
+            checkCompletion();
+        }
+
+        function checkCompletion() {
+            const visibleSlots = Array.from(document.querySelectorAll('.slot')).filter(slot => slot.style.display !== 'none');
+            if (visibleSlots.length === 0) {
+                showCongratsPopup();
+            }
+        }
+
+        function showCongratsPopup() {
+            document.getElementById('congratsPopup').classList.add('show');
+            document.getElementById('partyPop').classList.add('show');
+        }
+
+        function closePopup() {
+            document.getElementById('congratsPopup').classList.remove('show');
+            document.getElementById('partyPop').classList.remove('show');
+        }
+
+        function regenerateSlots() {
+            generateSlots();
+        }
+
+        function saveData() {
+            if (!currentSaveName) {
+                currentSaveName = prompt('Please enter your name to save your progress:');
+                if (!currentSaveName) {
+                    alert('Please enter a name.');
+                    return;
+                }
+            }
+
+            const slots = Array.from(document.querySelectorAll('.slot')).map(slot => ({
+                number: slot.querySelector('span').textContent.split(':')[0].trim().replace('Slot ', ''),
+                amount: slot.querySelector('span').textContent.split('$')[1].trim(),
+                hidden: slot.style.display === 'none'
+            }));
+
+            localStorage.setItem(currentSaveName, JSON.stringify(slots));
+            alert('Data saved successfully!');
+        }
+
+        function loadData(name) {
+            const savedData = localStorage.getItem(name);
+            if (savedData) {
+                const container = document.getElementById('slot-container');
+                container.innerHTML = '';
+                const slots = JSON.parse(savedData);
+                slots.forEach(slotData => {
+                    const slot = document.createElement('div');
+                    slot.className = 'slot';
+                    slot.style.display = slotData.hidden ? 'none' : 'flex';
+                    slot.innerHTML = `
+                        <span>Slot ${slotData.number}: $${slotData.amount}</span>
+                        <button class="cross-btn" onclick="crossSlot(this)">X</button>
+                    `;
+                    container.appendChild(slot);
+                });
+                checkCompletion(); // Check if all slots are crossed
+            } else {
+                generateSlots(); // Generate new slots if no saved data is found
+            }
+        }
+
+        function checkExistingUser() {
+            const name = prompt('Please enter your name:');
+            if (name) {
+                currentSaveName = name;
+                loadData(name);
+            } else {
+                generateSlots();
+            }
+        }
+
+        window.onload = checkExistingUser;
+    </script>
+</body>
+</html>

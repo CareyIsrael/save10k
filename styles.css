@@ -1,0 +1,16 @@
+body {
+    background-color: #647cfb;
+}
+
+.table th, .table td {
+    text-align: center;
+}
+
+.table td .btn {
+    border: none;
+    background: transparent;
+}
+
+.table td .btn:hover {
+    color: red;
+}
